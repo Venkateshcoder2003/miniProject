@@ -1,129 +1,172 @@
-# from flask import Flask, request, jsonify
 # import pickle
 # import numpy as np
 # import pandas as pd
+# from flask import Flask, request, jsonify
 # from flask_cors import CORS
+# from sklearn.svm import SVC
 
 # app = Flask(__name__)
 # CORS(app)
 
-# # Load the model
-# model = pickle.load(open('models/svc.pkl', 'rb'))
-
-# # Load dictionaries
-# symptoms_dict = {'itching': 0, 'skin_rash': 1, 'nodal_skin_eruptions': 2, 'continuous_sneezing': 3, 'shivering': 4, 'chills': 5, 'joint_pain': 6, 'stomach_pain': 7, 'acidity': 8, 'vomiting': 11, 'fatigue': 14, 'anxiety': 16, 'cold_hands_and_feets': 17, 'mood_swings': 18, 'weight_loss': 19, 'restlessness': 20, 'lethargy': 21, 'cough': 24, 'high_fever': 25, 'breathlessness': 27, 'sweating': 28, 'dehydration': 29, 'indigestion': 30, 'headache': 31, 'nausea': 34, 'loss_of_appetite': 35, 'back_pain': 37, 'constipation': 38, 'abdominal_pain': 39, 'diarrhoea': 40, 'mild_fever': 41}
-
-# diseases_list = {15: 'Fungal infection', 4: 'Allergy', 16: 'GERD', 9: 'Chronic cholestasis', 14: 'Drug Reaction', 33: 'Peptic ulcer disease', 1: 'AIDS', 12: 'Diabetes', 17: 'Gastroenteritis', 6: 'Bronchial Asthma'}
+# # Load the model and necessary data
+# try:
+#     model = pickle.load(open('models/svc.pkl', 'rb'))
+#     symptoms_dict = pickle.load(open('models/symptoms_dict.pkl', 'rb'))
+#     diseases_list = pickle.load(open('models/diseases_list.pkl', 'rb'))
+#     print("Model and data loaded successfully.")
+# except FileNotFoundError as e:
+#     print(f"Error: {e}")
+#     print("Please ensure that the model and data files are present in the 'models' directory.")
+#     exit(1)
 
 # # Load recommendation data
 # description_df = pd.read_csv("datasets/description.csv")
 # precautions_df = pd.read_csv("datasets/precautions_df.csv")
 # medications_df = pd.read_csv("datasets/medications.csv")
 # diets_df = pd.read_csv("datasets/diets.csv")
+# workout_df = pd.read_csv("datasets/workouts.csv")
 
-# def get_disease_details(disease_name):
-#     description = description_df[description_df['Disease'] == disease_name]['Description'].iloc[0]
-#     precautions = precautions_df[precautions_df['Disease'] == disease_name].iloc[0][1:].tolist()
-#     medications = medications_df[medications_df['Disease'] == disease_name]['Medication'].tolist()
-#     diets = diets_df[diets_df['Disease'] == disease_name]['Diet'].tolist()
-    
-#     return {
-#         'description': description,
-#         'precautions': precautions,
-#         'medications': medications,
-#         'diets': diets
-#     }
+# def helper(dis):
+#     desc = description_df[description_df['Disease'] == dis]['Description'].iloc[0]
+#     pre = precautions_df[precautions_df['Disease'] == dis][['Precaution_1', 'Precaution_2', 'Precaution_3', 'Precaution_4']]
+#     pre = [col for col in pre.values[0]]
+#     med = medications_df[medications_df['Disease'] == dis]['Medication'].tolist()
+#     die = diets_df[diets_df['Disease'] == dis]['Diet'].tolist()
+#     wrkout = workout_df[workout_df['disease'] == dis]['workout'].tolist()
+#     return desc, pre, med, die, wrkout
 
-# @app.route('/predict', methods=['POST'])
+# @app.route('/predictDisease', methods=['POST'])
 # def predict():
 #     try:
 #         data = request.get_json()
+#         print("Data from express server: ", data)
 #         symptoms = data['symptoms']
         
 #         # Create input vector
 #         input_vector = np.zeros(len(symptoms_dict))
+#         print("Initial input vector: ", input_vector)
+
 #         for symptom in symptoms:
 #             if symptom in symptoms_dict:
 #                 input_vector[symptoms_dict[symptom]] = 1
         
+#         print("Updated input vector: ", input_vector)
+#         print("Input vector shape: ", input_vector.shape)
+#         print("Model expected shape: ", model.n_features_in_)
+        
+#         # Ensure the input vector has the correct number of features
+#         if len(input_vector) != model.n_features_in_:
+#             return jsonify({'error': f'Input vector has {len(input_vector)} features, but model expects {model.n_features_in_} features.'}), 400
+        
 #         # Make prediction
 #         prediction = model.predict([input_vector])[0]
-#         predicted_disease = diseases_list[prediction]
+#         predicted_disease = diseases_list.get(prediction, "Unknown Disease")
         
 #         # Get disease details
-#         details = get_disease_details(predicted_disease)
+#         description, precautions, medications, diets, workouts = helper(predicted_disease)
         
 #         return jsonify({
 #             'disease': predicted_disease,
-#             **details
+#             'description': description,
+#             'precautions': precautions,
+#             'medications': medications,
+#             'diets': diets,
+#             'workouts': workouts
 #         })
 #     except Exception as e:
+#         print("Error occurred:", str(e))
 #         return jsonify({'error': str(e)}), 500
 
 # if __name__ == '__main__':
-#     app.run(debug=True, port=5000)
+#     app.run(debug=True, port=7000)
 
 
-from flask import Flask, request, jsonify
+
 import pickle
 import numpy as np
 import pandas as pd
+from flask import Flask, request, jsonify
 from flask_cors import CORS
+from sklearn.svm import SVC
 
 app = Flask(__name__)
 CORS(app)
 
-# Load the model
-model = pickle.load(open('models/svc.pkl', 'rb'))
-
-# Load dictionaries
-symptoms_dict = {'itching': 0, 'skin_rash': 1, 'nodal_skin_eruptions': 2, 'continuous_sneezing': 3, 'shivering': 4, 'chills': 5, 'joint_pain': 6, 'stomach_pain': 7, 'acidity': 8, 'vomiting': 11, 'fatigue': 14, 'anxiety': 16, 'cold_hands_and_feets': 17, 'mood_swings': 18, 'weight_loss': 19, 'restlessness': 20, 'lethargy': 21, 'cough': 24, 'high_fever': 25, 'breathlessness': 27, 'sweating': 28, 'dehydration': 29, 'indigestion': 30, 'headache': 31, 'nausea': 34, 'loss_of_appetite': 35, 'back_pain': 37, 'constipation': 38, 'abdominal_pain': 39, 'diarrhoea': 40, 'mild_fever': 41}
-
-diseases_list = {15: 'Fungal infection', 4: 'Allergy', 16: 'GERD', 9: 'Chronic cholestasis', 14: 'Drug Reaction', 33: 'Peptic ulcer disease', 1: 'AIDS', 12: 'Diabetes', 17: 'Gastroenteritis', 6: 'Bronchial Asthma'}
+# Load the model and necessary data
+try:
+    model = pickle.load(open('models/svc.pkl', 'rb'))
+    symptoms_dict = pickle.load(open('models/symptoms_dict.pkl', 'rb'))
+    diseases_list = pickle.load(open('models/diseases_list.pkl', 'rb'))
+    print("Model and data loaded successfully.")
+    print(f"Number of symptoms: {len(symptoms_dict)}")
+    print(f"Number of diseases: {len(diseases_list)}")
+except FileNotFoundError as e:
+    print(f"Error: {e}")
+    print("Please ensure that the model and data files are present in the 'models' directory.")
+    exit(1)
 
 # Load recommendation data
 description_df = pd.read_csv("datasets/description.csv")
 precautions_df = pd.read_csv("datasets/precautions_df.csv")
 medications_df = pd.read_csv("datasets/medications.csv")
 diets_df = pd.read_csv("datasets/diets.csv")
+workout_df = pd.read_csv("datasets/workouts.csv")
 
-def get_disease_details(disease_name):
-    description = description_df[description_df['Disease'] == disease_name]['Description'].iloc[0]
-    precautions = precautions_df[precautions_df['Disease'] == disease_name].iloc[0][1:].tolist()
-    medications = medications_df[medications_df['Disease'] == disease_name]['Medication'].tolist()
-    diets = diets_df[diets_df['Disease'] == disease_name]['Diet'].tolist()
-    
-    return {
-        'description': description,
-        'precautions': precautions,
-        'medications': medications,
-        'diets': diets
-    }
+def helper(dis):
+    desc = description_df[description_df['Disease'] == dis]['Description'].iloc[0]
+    pre = precautions_df[precautions_df['Disease'] == dis][['Precaution_1', 'Precaution_2', 'Precaution_3', 'Precaution_4']]
+    pre = [col for col in pre.values[0]]
+    med = medications_df[medications_df['Disease'] == dis]['Medication'].tolist()
+    die = diets_df[diets_df['Disease'] == dis]['Diet'].tolist()
+    wrkout = workout_df[workout_df['disease'] == dis]['workout'].tolist()
+    return desc, pre, med, die, wrkout
 
-@app.route('/predict', methods=['POST'])
+@app.route('/predictDisease', methods=['POST'])
 def predict():
     try:
         data = request.get_json()
+        print("Data from express server: ", data)
         symptoms = data['symptoms']
         
         # Create input vector
         input_vector = np.zeros(len(symptoms_dict))
+        print("Initial input vector: ", input_vector)
+
         for symptom in symptoms:
             if symptom in symptoms_dict:
                 input_vector[symptoms_dict[symptom]] = 1
         
+        print("Updated input vector: ", input_vector)
+        print("Input vector shape: ", input_vector.shape)
+        print("Model expected shape: ", model.n_features_in_)
+        
+        # Ensure the input vector has the correct number of features
+        if len(input_vector) != model.n_features_in_:
+            return jsonify({'error': f'Input vector has {len(input_vector)} features, but model expects {model.n_features_in_} features.'}), 400
+        
         # Make prediction
         prediction = model.predict([input_vector])[0]
+        print(f"Raw prediction: {prediction}")
+        
+        if prediction not in diseases_list:
+            return jsonify({'error': f'Predicted disease index {prediction} not found in diseases list.'}), 500
+        
         predicted_disease = diseases_list[prediction]
+        print(f"Predicted disease: {predicted_disease}")
         
         # Get disease details
-        details = get_disease_details(predicted_disease)
+        description, precautions, medications, diets, workouts = helper(predicted_disease)
         
         return jsonify({
             'disease': predicted_disease,
-            **details
+            'description': description,
+            'precautions': precautions,
+            'medications': medications,
+            'diets': diets,
+            'workouts': workouts
         })
     except Exception as e:
+        print("Error occurred:", str(e))
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

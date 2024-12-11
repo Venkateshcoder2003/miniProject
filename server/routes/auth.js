@@ -2,6 +2,8 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { auth } from '../middleware/auth.js';
+import axios from 'axios';
 
 const router = express.Router();
 
@@ -66,6 +68,18 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
+    }
+});
+router.post('/predict', async (req, res) => {
+    try {
+        console.log(req.body);
+        const { symptoms } = req.body;
+        const response = await axios.post('http://localhost:7000/predictDisease', { symptoms });
+        console.log("RESPONSE FROMFLASK SERVER:  ", response)
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: 'Prediction failed' });
     }
 });
 
