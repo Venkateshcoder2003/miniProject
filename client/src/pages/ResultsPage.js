@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 
@@ -13,8 +13,14 @@ const ResultsPage = () => {
     const [activeSection, setActiveSection] = useState(null);
 
     // If no prediction, redirect back
+    useEffect(() => {
+        if (!prediction) {
+            navigate('/');
+        }
+    }, [prediction, navigate]);
+
+    // If no prediction, return null to prevent rendering
     if (!prediction) {
-        navigate('/check-symptoms');
         return null;
     }
 
@@ -71,7 +77,13 @@ const ResultsPage = () => {
                     </div>
                 );
             default:
-                return null;
+                return (
+                    <div className="bg-white p-6 rounded-lg shadow-md text-center">
+                        <p className="text-gray-600">
+                            Please select a section to view more details about your symptom analysis.
+                        </p>
+                    </div>
+                );
         }
     };
 
@@ -106,15 +118,7 @@ const ResultsPage = () => {
                     ))}
                 </div>
 
-                {activeSection && renderContent()}
-
-                {!activeSection && (
-                    <div className="bg-white p-6 rounded-lg shadow-md text-center">
-                        <p className="text-gray-600">
-                            Please select a section to view more details about your symptom analysis.
-                        </p>
-                    </div>
-                )}
+                {renderContent()}
 
                 <div className="bg-yellow-50 p-4 rounded-lg mt-8">
                     <div className="flex items-center">
