@@ -80,53 +80,52 @@
 //     };
 
 //     return (
-//         <div className="min-h-screen bg-gray-50 py-12">
-//             <div className="max-w-7xl mx-auto px-4">
+//         <div className="min-h-screen bg-gray-50 py-12 px-4 w-full">
+//             <div className="max-w-7xl mx-auto">
 //                 <div className="text-center mb-12">
-//                     <h1 className="text-3xl font-bold text-gray-900">Symptom Checker</h1>
-//                     <p className="mt-2 text-lg text-gray-600">
+//                     <h1 className="text-4xl font-bold text-gray-900">Symptom Checker</h1>
+//                     <p className="mt-4 text-xl text-gray-600">
 //                         Select your symptoms for an AI-powered health analysis
 //                     </p>
 //                 </div>
 
-//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-//                     <div className="bg-white p-6 rounded-lg shadow-md">
-//                         <h2 className="text-xl font-semibold mb-4">Select Your Symptoms</h2>
-//                         <div className="grid grid-cols-4 gap-2 max-h-[500px] overflow-y-auto">
-//                             {symptoms.map((symptom) => (
-//                                 <label
-//                                     key={symptom}
-//                                     className="flex items-center space-x-2 cursor-pointer"
-//                                 >
-//                                     <input
-//                                         type="checkbox"
-//                                         checked={selectedSymptoms.includes(symptom)}
-//                                         onChange={() => handleSymptomChange(symptom)}
-//                                         className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-//                                     />
-//                                     <span className="text-sm text-gray-700">
-//                                         {symptom.replace(/_/g, ' ')}
-//                                     </span>
-//                                 </label>
-//                             ))}
-//                         </div>
-//                         {error && (
-//                             <p className="text-red-500 text-sm mt-2">{error}</p>
-//                         )}
-//                         <button
-//                             onClick={handleSubmit}
-//                             disabled={loading}
-//                             className="mt-6 w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-//                         >
-//                             {loading ? (
-//                                 <Activity className="animate-spin h-5 w-5" />
-//                             ) : (
-//                                 'Analyze Symptoms'
-//                             )}
-//                         </button>
+//                 <div className="bg-white p-8 rounded-xl shadow-2xl w-full">
+//                     <h2 className="text-2xl font-semibold mb-6">Select Your Symptoms</h2>
+//                     <div className="grid grid-cols-5 gap-4 max-h-[600px] overflow-y-auto">
+//                         {symptoms.map((symptom) => (
+//                             <label
+//                                 key={symptom}
+//                                 className="flex items-center space-x-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors"
+//                             >
+//                                 <input
+//                                     type="checkbox"
+//                                     checked={selectedSymptoms.includes(symptom)}
+//                                     onChange={() => handleSymptomChange(symptom)}
+//                                     className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 h-4 w-4"
+//                                 />
+//                                 <span className="text-sm text-gray-800">
+//                                     {symptom.replace(/_/g, ' ')}
+//                                 </span>
+//                             </label>
+//                         ))}
 //                     </div>
-
-
+//                     {error && (
+//                         <div className="mt-4 flex items-center text-red-500 space-x-2">
+//                             <AlertCircle className="h-5 w-5" />
+//                             <p className="text-sm">{error}</p>
+//                         </div>
+//                     )}
+//                     <button
+//                         onClick={handleSubmit}
+//                         disabled={loading}
+//                         className="mt-8 w-full bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-lg font-semibold"
+//                     >
+//                         {loading ? (
+//                             <Activity className="animate-spin h-6 w-6 mr-2" />
+//                         ) : (
+//                             'Analyze Symptoms'
+//                         )}
+//                     </button>
 //                 </div>
 //             </div>
 //         </div>
@@ -134,6 +133,9 @@
 // };
 
 // export default SymptomChecker;
+
+
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Activity, AlertCircle } from 'lucide-react';
@@ -171,21 +173,20 @@ const symptoms = [
     "pus_filled_pimples", "blackheads", "scurring", "skin_peeling", "silver_like_dusting",
     "small_dents_in_nails", "inflammatory_nails", "blister", "red_sore_around_nose",
     "yellow_crust_ooze", "prognosis"
-];
+]
 
-const SymptomChecker = () => {
+export default function SymptomChecker() {
+    const [selectedSymptoms, setSelectedSymptoms] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
     const navigate = useNavigate();
-    const [selectedSymptoms, setSelectedSymptoms] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-
     const handleSymptomChange = (symptom) => {
         setSelectedSymptoms(prev =>
             prev.includes(symptom)
                 ? prev.filter(s => s !== symptom)
                 : [...prev, symptom]
-        );
-    };
+        )
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -214,58 +215,64 @@ const SymptomChecker = () => {
             setLoading(false);
         }
     };
-
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 w-full">
+        <div className="min-h-screen bg-gray-50 py-6 sm:py-12 px-4 w-full">
             <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-gray-900">Symptom Checker</h1>
-                    <p className="mt-4 text-xl text-gray-600">
+                <div className="text-center mb-6 sm:mb-8">
+                    <h1 className="text-2xl sm:text-4xl font-bold text-gray-900">
+                        Symptom Checker
+                    </h1>
+                    <p className="mt-2 sm:mt-4 text-base sm:text-xl text-gray-600">
                         Select your symptoms for an AI-powered health analysis
                     </p>
                 </div>
 
-                <div className="bg-white p-8 rounded-xl shadow-2xl w-full">
-                    <h2 className="text-2xl font-semibold mb-6">Select Your Symptoms</h2>
-                    <div className="grid grid-cols-5 gap-4 max-h-[600px] overflow-y-auto">
+                <div className="bg-white p-4 sm:p-8 rounded-xl shadow-lg sm:shadow-2xl w-full">
+                    <div className="mb-4 sm:mb-6">
+                        <button
+                            onClick={handleSubmit}
+                            disabled={loading}
+                            className="w-full bg-purple-600 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg hover:bg-purple-700 transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-base sm:text-lg font-semibold"
+                        >
+                            {loading ? (
+                                <Activity className="animate-spin h-5 w-5 sm:h-6 sm:w-6 mr-2" />
+                            ) : (
+                                'Analyze Symptoms'
+                            )}
+                        </button>
+                        {error && (
+                            <div className="mt-3 flex items-center text-red-500 space-x-2">
+                                <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                                <p className="text-xs sm:text-sm">{error}</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">
+                        Select Your Symptoms
+                    </h2>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
                         {symptoms.map((symptom) => (
                             <label
                                 key={symptom}
-                                className="flex items-center space-x-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors"
+                                className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors"
                             >
                                 <input
                                     type="checkbox"
                                     checked={selectedSymptoms.includes(symptom)}
                                     onChange={() => handleSymptomChange(symptom)}
-                                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 h-4 w-4"
+                                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 h-3 w-3 sm:h-4 sm:w-4"
                                 />
-                                <span className="text-sm text-gray-800">
+                                <span className="text-xs sm:text-sm text-gray-800">
                                     {symptom.replace(/_/g, ' ')}
                                 </span>
                             </label>
                         ))}
                     </div>
-                    {error && (
-                        <div className="mt-4 flex items-center text-red-500 space-x-2">
-                            <AlertCircle className="h-5 w-5" />
-                            <p className="text-sm">{error}</p>
-                        </div>
-                    )}
-                    <button
-                        onClick={handleSubmit}
-                        disabled={loading}
-                        className="mt-8 w-full bg-purple-600 text-white py-3 px-6 rounded-lg hover:bg-purple-700 transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-lg font-semibold"
-                    >
-                        {loading ? (
-                            <Activity className="animate-spin h-6 w-6 mr-2" />
-                        ) : (
-                            'Analyze Symptoms'
-                        )}
-                    </button>
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default SymptomChecker;

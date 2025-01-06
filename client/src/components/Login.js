@@ -15,8 +15,16 @@ function Login() {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:5000/api/login', formData);
-            localStorage.setItem('token', response.data.token);
-            toast.success('Login successful!');
+            const { token, user } = response.data;
+
+            // Store token
+            localStorage.setItem('token', token);
+
+            // Store user data if needed
+            localStorage.setItem('user', JSON.stringify(user));
+
+            // Configure axios defaults for future requests
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             navigate('/check-symptoms');
         } catch (error) {
             toast.error(error.response?.data?.message || 'Login failed');

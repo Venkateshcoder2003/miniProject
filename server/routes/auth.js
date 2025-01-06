@@ -4,11 +4,12 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { auth } from '../middleware/auth.js';
 import axios from 'axios';
+import { signUpValidation, loginValidation } from '../validation/AuthValidation.js';
 
 const router = express.Router();
 
 // Signup route
-router.post('/signup', async (req, res) => {
+router.post('/signup', signUpValidation, async (req, res) => {
     try {
         const { firstName, lastName, email, password, age, gender } = req.body;
 
@@ -41,7 +42,7 @@ router.post('/signup', async (req, res) => {
 });
 
 // Login route
-router.post('/login', async (req, res) => {
+router.post('/login', loginValidation, async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -70,7 +71,7 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-router.post('/predict', async (req, res) => {
+router.post('/predict', auth, async (req, res) => {
     try {
         console.log(req.body);
         const { symptoms } = req.body;
@@ -82,6 +83,20 @@ router.post('/predict', async (req, res) => {
         res.status(500).json({ message: 'Prediction failed' });
     }
 });
+
+// Get user data
+router.get('/user', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId).select('-password')
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' })
+        }
+        res.json(user)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Server error' })
+    }
+})
 
 export default router;
 
