@@ -4,8 +4,6 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import authRoutes from './routes/auth.js';
 
-import axios from 'axios';
-
 dotenv.config();
 
 const app = express();

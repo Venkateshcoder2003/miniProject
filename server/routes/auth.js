@@ -9,7 +9,7 @@ import { signUpValidation, loginValidation } from '../validation/AuthValidation.
 const router = express.Router();
 
 // Signup route
-router.post('/signup', signUpValidation, async (req, res) => {
+router.post('/signup', async (req, res) => {
     try {
         const { firstName, lastName, email, password, age, gender } = req.body;
 
@@ -42,7 +42,7 @@ router.post('/signup', signUpValidation, async (req, res) => {
 });
 
 // Login route
-router.post('/login', loginValidation, async (req, res) => {
+router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
